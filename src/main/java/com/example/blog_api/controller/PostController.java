@@ -5,6 +5,7 @@ import com.example.blog_api.payload.PostDto;
 import com.example.blog_api.payload.PostResponse;
 import com.example.blog_api.service.PostService;
 import com.example.blog_api.utils.AppConstants;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +34,12 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto){
+    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto){
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<PostDto>  updatePost(@RequestBody PostDto postDto,@PathVariable("postId") long postId){
+    public ResponseEntity<PostDto>  updatePost(@Valid @RequestBody PostDto postDto,@PathVariable("postId") long postId){
         PostDto postResponse = postService.updatePost(postDto,postId);
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
