@@ -1,6 +1,8 @@
 package com.example.blog_api.config;
 
 import com.example.blog_api.security.CustomUserDetailsService;
+import com.example.blog_api.security.JwtAuthenticationEntryPoint;
+import com.example.blog_api.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,23 +23,32 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
-//                        .requestMatchers("/api/posts").hasRole("USER")
-//                        .requestMatchers("/api/posts/2/comments").hasRole("ADMIN")
-//                        .requestMatchers("/api/posts/query?postId=2").authenticated()
+                        .requestMatchers("/api/posts").hasRole("USER")
+                        .requestMatchers("/api/posts/2/comments").hasRole("ADMIN")
+                        .requestMatchers("/api/posts/query?postId=2").authenticated()
                         .requestMatchers(HttpMethod.POST,"/api/posts").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().permitAll())
                 .formLogin(Customizer.withDefaults());
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
     @Bean

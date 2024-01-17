@@ -2,10 +2,12 @@ package com.example.blog_api.controller;
 
 import com.example.blog_api.entity.Role;
 import com.example.blog_api.entity.User;
+import com.example.blog_api.payload.JwtAuthResponse;
 import com.example.blog_api.payload.LoginDto;
 import com.example.blog_api.payload.SignUpDto;
 import com.example.blog_api.repository.RoleRepository;
 import com.example.blog_api.repository.UserRepository;
+import com.example.blog_api.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,15 +32,19 @@ public class AuthController {
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtTokenProvider tokenProvider;
 
     @PostMapping("signin")
-    public ResponseEntity<String> authenticateUser(@RequestBody LoginDto loginDto){
+    public ResponseEntity<JwtAuthResponse> authenticateUser(@RequestBody LoginDto loginDto){
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 loginDto.getUsernameOrEmail(),loginDto.getPassword()
         ));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User sign in successfully", HttpStatus.OK);
+        String token = tokenProvider.generateToken(authentication);
+
+        return ResponseEntity.ok(new JwtAuthResponse(token));
     }
     @GetMapping("signin")
     public String signIn(){
