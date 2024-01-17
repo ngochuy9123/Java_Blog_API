@@ -31,14 +31,13 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/posts").hasAuthority("USER")
-                        .requestMatchers("/api/posts/2/comments").hasAuthority("ADMIN")
-                        .requestMatchers("/api/posts/query?postId=2").authenticated()
+//                        .requestMatchers("/api/posts").hasRole("USER")
+//                        .requestMatchers("/api/posts/2/comments").hasRole("ADMIN")
+//                        .requestMatchers("/api/posts/query?postId=2").authenticated()
+                        .requestMatchers(HttpMethod.POST,"/api/posts").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().permitAll())
-                .formLogin(Customizer.withDefaults())
-                ;
-
+                .formLogin(Customizer.withDefaults());
         return http.build();
     }
     @Bean
@@ -64,17 +63,5 @@ public class SecurityConfig {
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }
-
-//    @Bean
-//    public InMemoryUserDetailsManager userDetailsService(){
-//        InMemoryUserDetailsManager inMemoryUserDetailsManager = new InMemoryUserDetailsManager();
-//        UserDetails admin = User.withUsername("admin").password("12345").authorities("ADMIN").build();
-//        UserDetails user = User.withUsername("user").password("12345").authorities("USER").build();
-//        inMemoryUserDetailsManager.createUser(admin);
-//        inMemoryUserDetailsManager.createUser(user);
-//        return inMemoryUserDetailsManager;
-//    }
-
-
 
 }
